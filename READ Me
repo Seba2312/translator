@@ -1,0 +1,4 @@
+
+#Step 1 create a venv on terminal : python -m venv translator
+#Step 2 run it, no need to make step 1 after making it once  : .\translator\Scripts\Activate
+#Step 3 modify the translator file to fit your document and style you want
