@@ -11,7 +11,7 @@ import time
 
 
 #from googletrans import Translator
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="api key")
 
 
 def improve_grammar(text):
