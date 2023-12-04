@@ -1,35 +1,39 @@
+import requests
 from docx import Document
 from docx.shared import Pt
 from docx.opc.exceptions import PackageNotFoundError
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import os
 import openai
-from googletrans import Translator
+from openai import OpenAI
+import time
 
-openai.api_key = "your api key"
 
 
-def improvegrammer(text):
-    model_engine = "text-davinci-003"  #  "text-davinci-003"  is good, cheaper options give worse text, before choosing test with a small file to choose optimized
-    response = openai.Completion.create(
-        engine=model_engine,
-        prompt=f"Please correct any grammatical or stylistic errors in the following text without altering the original message. You may rewrite sentences if that improves their clarity and makes them easier to read. Ensure that the returned text is a single, coherent paragraph free from repetition or misplaced sentences: {text}",
-        max_tokens=2000  #More tokens means clearer text, but might be more expensvie
-    )
-    corrected_text = response.choices[0].text.strip()
+#from googletrans import Translator
+client = OpenAI(api_key="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")
 
-    # Remove the first sentence if it starts with a lowercase letter
-    if corrected_text and corrected_text[0].islower():
-        corrected_text = corrected_text[corrected_text.find('. ') + 2:]
-    return corrected_text
+
+def improve_grammar(text):
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Please correct any grammatical or stylistic errors in the following text without altering the original message: {text}",
+                }
+            ],
+            model="gpt-3.5-turbo",
+        )
+        text_content = chat_completion.choices[0].message.content
+        return text_content
+    except openai.OpenAIError as e:
+        print(f"An OpenAI error occurred: {e}")
 
 
 def translate_to_english(text):
-    translator = Translator()
-    translated = translator.translate(text, src='pt', dest='en')  #choose any languages i have chosen pt(portuguese to english)
-    #do to prompt being in english it is optmized for translating english
-    return translated.text
-
+    response = requests.post("http://localhost:5006/translate", json={"text": text, "src": "de", "dest": "en"})
+    return response.json()["translated_text"]
 
 def add_tab_to_sentences(text):
     return '\t' + text
@@ -37,7 +41,7 @@ def add_tab_to_sentences(text):
 
 try:
     # Initialize Document objects for reading and writing
-    input_document = Document(r"the location of the file to be translated, ending with .docx")
+    input_document = Document(r"C:\PersonalFiles - Copy\pythonProject\4Seiten.docx")
 except PackageNotFoundError as e:
     print(f"PackageNotFoundError: {e}")
     exit()
@@ -61,7 +65,7 @@ try:
                 print("Translated Text")
                 print(translated_text)
                 print("Fixed by spellcheck and style-check ")
-                translated_text = improvegrammer(translated_text)
+                translated_text = improve_grammar(translated_text)
                 print(translated_text)
                 print("")
 
@@ -78,9 +82,9 @@ try:
                 new_run.italic = first_run.italic
                 new_run.underline = first_run.underline
                 if first_run.font.size:
-                    new_run.font.size = Pt(12) if first_run.font.size.pt in [11, 12] else first_run.font.size
+                    new_run.font.size = Pt(14) if first_run.font.size.pt in [11, 12] else first_run.font.size
                 else:
-                    new_run.font.size = Pt(12)
+                    new_run.font.size = Pt(14)
                 new_run.font.name = 'Times New Roman'  # Set font to chosen font
         except Exception as e:
             print(f"An error occurred : {e}")
@@ -89,6 +93,6 @@ except Exception as e:
 
 try:
     # Save the output document
-    output_document.save(r"C:\location where file created last file must have .docx (the one being created)")
+    output_document.save(r"C:\PersonalFiles - Copy\pythonProject\fertig4Seiten.docx")  # Specify the full path with a file name
 except Exception as e:
     print(f"An error occurred while saving the document: {e}")
