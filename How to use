@@ -1,0 +1,22 @@
+
+1: go to translation, there you must do the following
+    a. go to terminal       cd translation
+    b. create virtual environment   python -m venv flask
+    c. activate virtual environment     .\flask\Scripts\Activate
+    d. install dependencies
+        pip install Flask
+        pip install googletrans
+    e. run the server python flaskapp.py
+
+2: Open a new terminal, keep the old one running
+    a. create virtual environment      python -m venv translator
+    b. activate virtual environment         .\translator\Scripts\Activate
+    c.install dependencies
+         pip install openai
+          pip install requests
+          pip install python-docx
+
+
+    d. instert api key into translator.py for openai
+    e. choose the file location of the text to be translated and where the translation should be stored
+    f. run it             python translator.py
