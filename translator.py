@@ -3,14 +3,14 @@ from docx import Document
 from docx.shared import Pt
 from docx.opc.exceptions import PackageNotFoundError
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-import os
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+
+
 import openai
 from openai import OpenAI
-import time
 
 
 
-#from googletrans import Translator
 client = OpenAI(api_key="api key")
 
 
@@ -32,7 +32,8 @@ def improve_grammar(text):
 
 
 def translate_to_english(text):
-    response = requests.post("http://localhost:5006/translate", json={"text": text, "src": "de", "dest": "en"})
+    response = requests.post("http://localhost:5001/translate", json={"text": text, "src": "de", "dest": "en"})
+    print(response)
     return response.json()["translated_text"]
 
 def add_tab_to_sentences(text):
@@ -41,7 +42,7 @@ def add_tab_to_sentences(text):
 
 try:
     # Initialize Document objects for reading and writing
-    input_document = Document(r"C:\PersonalFiles - Copy\pythonProject\4Seiten.docx")
+    input_document = Document(r"C:\...\translator\input.docx")    #input document
 except PackageNotFoundError as e:
     print(f"PackageNotFoundError: {e}")
     exit()
@@ -72,7 +73,11 @@ try:
             new_text = add_tab_to_sentences(translated_text)
             new_para = output_document.add_paragraph()
             new_para.style = para.style
-            new_para.alignment = para.alignment
+            try:
+                new_para.alignment = para.alignment
+            except Exception as alignment_error:
+                print(f"An error occurred with paragraph alignment: {alignment_error}")
+                new_para.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT  #default alignment
 
             new_run = new_para.add_run(new_text)
 
@@ -84,7 +89,7 @@ try:
                 if first_run.font.size:
                     new_run.font.size = Pt(14) if first_run.font.size.pt in [11, 12] else first_run.font.size
                 else:
-                    new_run.font.size = Pt(14)
+                    new_run.font.size = Pt(12)
                 new_run.font.name = 'Times New Roman'  # Set font to chosen font
         except Exception as e:
             print(f"An error occurred : {e}")
@@ -93,6 +98,6 @@ except Exception as e:
 
 try:
     # Save the output document
-    output_document.save(r"C:\PersonalFiles - Copy\pythonProject\fertig4Seiten.docx")  # Specify the full path with a file name
+    output_document.save(r"C:\...\translator\output.docx")  # Specify the full path with a file name
 except Exception as e:
     print(f"An error occurred while saving the document: {e}")

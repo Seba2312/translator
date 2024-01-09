@@ -17,6 +17,7 @@
           pip install python-docx
 
 
-    d. instert api key into translator.py for openai
+    d. instert api key into translator.py for openai (one has to buy tokes from openai)
     e. choose the file location of the text to be translated and where the translation should be stored
+        this changes are done in translator.py and are marked
     f. run it             python translator.py
